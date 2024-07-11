@@ -87,6 +87,8 @@ class RCTVideo: UIView, RCTVideoPlayerViewControllerDelegate, RCTPlayerObserverH
         }
     }
 
+    
+
     /* IMA Ads */
     private var _adTagUrl: String?
     #if USE_GOOGLE_IMA
@@ -671,18 +673,42 @@ class RCTVideo: UIView, RCTVideoPlayerViewControllerDelegate, RCTPlayerObserverH
 
     @objc
     func setPictureInPicture(_ pictureInPicture: Bool) {
+        print("setPictureInPicture 안함");
         #if os(iOS)
             let audioSession = AVAudioSession.sharedInstance()
+        
             do {
                 try audioSession.setCategory(.playback)
                 try audioSession.setActive(true, options: [])
             } catch {}
             if pictureInPicture {
+                
                 _pictureInPictureEnabled = true
             } else {
+                
                 _pictureInPictureEnabled = false
             }
+        
             _pip?.setPictureInPicture(pictureInPicture)
+        #endif
+    }
+    
+    @objc
+    func setPictureInPictureForce(_ pictureInPicture: Bool) {
+        #if os(iOS)
+            let audioSession = AVAudioSession.sharedInstance()
+            print("setPictureInPictureForce");
+            
+            do {
+                print("setPictureInPictureForce1");
+                try audioSession.setCategory(.playback)
+                try audioSession.setActive(true, options: [])
+            } catch {
+                print("setPictureInPictureForce2");
+            }
+        
+        print("setPictureInPictureForce3");
+            _pip?.setPictureInPictureForce(pictureInPicture)
         #endif
     }
 
@@ -1136,6 +1162,8 @@ class RCTVideo: UIView, RCTVideoPlayerViewControllerDelegate, RCTPlayerObserverH
     // MARK: - RCTVideoPlayerViewControllerDelegate
 
     func videoPlayerViewControllerWillDismiss(playerViewController: AVPlayerViewController) {
+        print("RNV::videoPlayerViewControllerWillDismiss")
+        setPictureInPictureForce(true)
         if _playerViewController == playerViewController
             && _fullscreenPlayerPresented,
             let onVideoFullscreenPlayerWillDismiss {

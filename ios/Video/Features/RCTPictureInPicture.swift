@@ -68,21 +68,35 @@ import React
         }
 
         func setPictureInPicture(_ isActive: Bool) {
+            print("RCTPIP::setPictureInPicture")
+
             if _isActive == isActive {
                 return
             }
             _isActive = isActive
 
             guard let _pipController else { return }
-
+            _pipController.startPictureInPicture()
             if _isActive && !_pipController.isPictureInPictureActive {
                 DispatchQueue.main.async {
+                    print("시자아아아아아악1")
                     _pipController.startPictureInPicture()
                 }
             } else if !_isActive && _pipController.isPictureInPictureActive {
                 DispatchQueue.main.async {
                     _pipController.stopPictureInPicture()
                 }
+            }
+        }
+        
+        func setPictureInPictureForce(_ isActive: Bool) {
+            print("RCTPIP::setPictureInPictureForce")
+
+            guard let _pipController else { return }
+
+            DispatchQueue.main.async {
+                print("시자아아아아아악Force")
+                _pipController.startPictureInPicture()
             }
         }
     }

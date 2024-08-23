@@ -2217,7 +2217,7 @@ public class ReactExoplayerView extends FrameLayout implements
             });
         } else {
             eventEmitter.fullscreenWillDismiss();
-            if (fullScreenPlayerView != null) {
+            if (controls && fullScreenPlayerView != null) {
                 fullScreenPlayerView.dismiss();
                 reLayoutControls();
             }

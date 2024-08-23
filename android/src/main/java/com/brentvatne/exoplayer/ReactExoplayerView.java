@@ -2206,7 +2206,7 @@ public class ReactExoplayerView extends FrameLayout implements
         WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(window, window.getDecorView());
         if (isFullscreen) {
             eventEmitter.fullscreenWillPresent();
-            if (controls && fullScreenPlayerView != null) {
+            if (fullScreenPlayerView != null) {
                 fullScreenPlayerView.show();
             }
             UiThreadUtil.runOnUiThread(() -> {
@@ -2217,7 +2217,7 @@ public class ReactExoplayerView extends FrameLayout implements
             });
         } else {
             eventEmitter.fullscreenWillDismiss();
-            if (controls && fullScreenPlayerView != null) {
+            if (fullScreenPlayerView != null) {
                 fullScreenPlayerView.dismiss();
                 reLayoutControls();
             }

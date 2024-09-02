@@ -70,6 +70,23 @@ class RCTPlayerObserver: NSObject, AVPlayerItemMetadataOutputPushDelegate, AVPla
             metadataOutput.setDelegate(self, queue: .main)
             legibleOutput.setDelegate(self, queue: .main)
             legibleOutput.suppressesPlayerRendering = subtitleStyle?.opacity == 0 ? true : false
+
+            // print("플레이어아이템 자막 스타일 적용 \(subtitleStyle)")
+            if #available(iOS 14.0, *) {
+                let textStyleRule = AVTextStyleRule(textMarkupAttributes: [
+                    kCMTextMarkupAttribute_FontFamilyName as String: "Helvetica",
+                    kCMTextMarkupAttribute_BaseFontSizePercentageRelativeToVideoHeight as String: 5,
+//                    kCMTextMarkupAttribute_ForegroundColorARGB as String: [1.0, 1.0, 1.0, 1.0], // White color,
+//                    kCMTextMarkupAttribute_RelativeFontSize as String:25
+                    kCMTextMarkupAttribute_OrthogonalLinePositionPercentageRelativeToWritingDirection as String : subtitleStyle?.topPositionRate
+                ])
+                
+                if let textStyleRule = textStyleRule {
+                    playerItem.textStyleRules = [textStyleRule]
+                }            } else {
+                // iOS 14.0 미만에서는 다른 방법으로 스타일을 설정해야 합니다.
+                // print("iOS 14.0 미만에서는 textStyleRules를 사용할 수 없습니다.")
+            }
         }
     }
 

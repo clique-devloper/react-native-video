@@ -1155,7 +1155,24 @@ class RCTVideo: UIView, RCTVideoPlayerViewControllerDelegate, RCTPlayerObserverH
 
     @objc
     func setSubtitleStyle(_ style: [String: Any]) {
-        let subtitleStyle = SubtitleStyle.parse(from: style)
+                let subtitleStyle = SubtitleStyle.parse(from: style)
+//        print("RNV::자막설정 - subtitlePosition: \(subtitleStyle)")
+        
+        if #available(iOS 14.0, *) {
+            let textStyleRule = AVTextStyleRule(textMarkupAttributes: [
+                kCMTextMarkupAttribute_FontFamilyName as String: "Helvetica",
+                kCMTextMarkupAttribute_BaseFontSizePercentageRelativeToVideoHeight as String: 5,
+//                    kCMTextMarkupAttribute_ForegroundColorARGB as String: [1.0, 1.0, 1.0, 1.0], // White color,
+//                    kCMTextMarkupAttribute_RelativeFontSize as String:25
+                kCMTextMarkupAttribute_OrthogonalLinePositionPercentageRelativeToWritingDirection as String : subtitleStyle.topPositionRate
+            ])
+            
+            if let textStyleRule = textStyleRule {
+                _playerItem?.textStyleRules = [textStyleRule]
+            }            } else {
+            // iOS 14.0 미만에서는 다른 방법으로 스타일을 설정해야 합니다.
+//            print("iOS 14.0 미만에서는 textStyleRules를 사용할 수 없습니다.")
+        }
         _playerObserver.subtitleStyle = subtitleStyle
     }
 

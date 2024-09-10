@@ -80,7 +80,9 @@ class RCTPlayerObserver: NSObject, AVPlayerItemMetadataOutputPushDelegate, AVPla
 //                    kCMTextMarkupAttribute_RelativeFontSize as String:25
                     kCMTextMarkupAttribute_OrthogonalLinePositionPercentageRelativeToWritingDirection as String : subtitleStyle?.topPositionRate
                 ])
-                
+// ios 최대 해상도 지정. 해상도 설정하는 옵션이지만 subtitleStyle에서 설정하도록 함 편의상. resolution을 사용하도록 수정
+ playerItem.preferredMaximumResolution = CGSize(width: subtitleStyle?.resolution.width ?? 1080, height: subtitleStyle?.resolution.height ?? 1920) // 720p
+
                 if let textStyleRule = textStyleRule {
                     playerItem.textStyleRules = [textStyleRule]
                 }            } else {

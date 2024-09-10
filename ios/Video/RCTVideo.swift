@@ -1173,6 +1173,7 @@ class RCTVideo: UIView, RCTVideoPlayerViewControllerDelegate, RCTPlayerObserverH
             // iOS 14.0 미만에서는 다른 방법으로 스타일을 설정해야 합니다.
 //            print("iOS 14.0 미만에서는 textStyleRules를 사용할 수 없습니다.")
         }
+        _playerItem.preferredMaximumResolution = CGSize(width: subtitleStyle.resolution.width ?? 1080, height: subtitleStyle.resolution.height ?? 1920) // 720p
         _playerObserver.subtitleStyle = subtitleStyle
     }
 

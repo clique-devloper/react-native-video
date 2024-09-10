@@ -392,6 +392,7 @@ export interface VideoManagerType {
   setVolume: (volume: number, reactTag: number) => Promise<void>;
   getCurrentPosition: (reactTag: number) => Promise<number>;
   startPictureInPicture: (reactTag: number) => Promise<number>;
+  stopPictureInPicture: (reactTag: number) => Promise<number>;
   getTag: (reactTag: number) => Promise<number>;
 }
 

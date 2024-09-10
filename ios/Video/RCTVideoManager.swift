@@ -101,6 +101,14 @@ class RCTVideoManager: RCTViewManager {
         })
     }
 
+    @objc(stopPictureInPicture:resolver:rejecter:)
+    func stopPictureInPicture(reactTag: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        print("react-native-video::스탑 PIP")
+        performOnVideoView(withReactTag: reactTag, callback: { videoView in
+            videoView?.setPictureInPicture(false);
+        })
+    }
+
     override class func requiresMainQueueSetup() -> Bool {
         return true
     }

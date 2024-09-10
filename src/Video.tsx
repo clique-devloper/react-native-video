@@ -301,8 +301,13 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
     }, []);
 
     const startPictureInPicture = useCallback(() => {
-      console.log("react-native-video::startPictureInPicture");
+      // console.log("react-native-video::startPictureInPicture");
       return VideoManager.startPictureInPicture(getReactTag(nativeRef));
+    },[])
+
+    const stopPictureInPicture = useCallback(() => {
+      // console.log("react-native-video::stopPictureInPicture");
+      return VideoManager.stopPictureInPicture(getReactTag(nativeRef));
     },[])
 
     const getTag = useCallback(() => {
@@ -528,6 +533,7 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
         setVolume,
         getCurrentPosition,
         startPictureInPicture,
+        stopPictureInPicture,
         getTag,
       }),
       [
@@ -541,6 +547,7 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
         setVolume,
         getCurrentPosition,
         startPictureInPicture,
+        stopPictureInPicture,
         getTag,
       ],
     );

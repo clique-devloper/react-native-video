@@ -1160,7 +1160,7 @@ class RCTVideo: UIView, RCTVideoPlayerViewControllerDelegate, RCTPlayerObserverH
         
         if #available(iOS 14.0, *) {
             let textStyleRule = AVTextStyleRule(textMarkupAttributes: [
-                kCMTextMarkupAttribute_FontFamilyName as String: "Helvetica",
+                kCMTextMarkupAttribute_FontFamilyName as String: "M PLUS 1",
                 kCMTextMarkupAttribute_BaseFontSizePercentageRelativeToVideoHeight as String: 2.5,
 //                    kCMTextMarkupAttribute_ForegroundColorARGB as String: [1.0, 1.0, 1.0, 1.0], // White color,
 //                    kCMTextMarkupAttribute_RelativeFontSize as String:25

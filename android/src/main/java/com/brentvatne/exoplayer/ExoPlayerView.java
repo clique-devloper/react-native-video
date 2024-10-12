@@ -117,6 +117,16 @@ public final class ExoPlayerView extends FrameLayout implements AdViewProvider {
         subtitleLayout.setUserDefaultStyle();
         subtitleLayout.setUserDefaultTextSize();
 
+        // 커스텀폰트 적용. 해당 폴터에 폰트파일 있어야 한다.
+        subtitleLayout.setStyle(new CaptionStyleCompat(
+            Color.WHITE, // 텍스트 색상
+            Color.BLACK, // 배경 색상
+            Color.TRANSPARENT, // 윈도우 색상
+            CaptionStyleCompat.EDGE_TYPE_OUTLINE, // 엣지 타입
+            Color.TRANSPARENT, // 엣지 색상
+            Typeface.createFromAsset(context.getAssets(), "fonts/MPLUS1-Regular.ttf")
+    ));// 커스텀 폰트
+
         if (style.getFontSize() > 0) {
             subtitleLayout.setFixedTextSize(TypedValue.COMPLEX_UNIT_SP, style.getFontSize());
         }

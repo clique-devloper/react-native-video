@@ -20,6 +20,7 @@ import androidx.media3.ui.SubtitleView;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.SurfaceView;
@@ -128,15 +129,17 @@ public final class ExoPlayerView extends FrameLayout implements AdViewProvider {
                 Color.BLACK, // 배경 색상
                 Color.TRANSPARENT, // 윈도우 색상
                 CaptionStyleCompat.EDGE_TYPE_OUTLINE, // 엣지 타입
-                Color.TRANSPARENT, // 엣지 색상
+                Color.BLACK, // 엣지 색상
                 Typeface.createFromAsset(context.getAssets(), "fonts/MPLUS1-Regular.ttf")
         ));// 커스텀 폰트
 
+
         if (style.getFontSize() > 0) {
+
 //            subtitleLayout.setFixedTextSize(TypedValue.COMPLEX_UNIT_SP, style.getFontSize()*subtitleLayout.getUser);
 
 //            subtitleLayout.setFractionalTextSize(style.getFontSize());
-            subtitleLayout.setFractionalTextSize(0.0533F * this.getUserCaptionFontScale());
+            subtitleLayout.setFractionalTextSize(0.0533F * style.getFontSize() * 0.001F * this.getUserCaptionFontScale());
 
         }
         subtitleLayout.setPadding(style.getPaddingLeft(), style.getPaddingTop(), style.getPaddingRight(), style.getPaddingBottom());

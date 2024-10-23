@@ -12,9 +12,13 @@ import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.ui.CaptionStyleCompat;
 import androidx.media3.ui.SubtitleView;
 
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -22,6 +26,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.CaptioningManager;
 import android.widget.FrameLayout;
 
 import com.brentvatne.common.api.ResizeMode;
@@ -119,16 +124,20 @@ public final class ExoPlayerView extends FrameLayout implements AdViewProvider {
 
         // 커스텀폰트 적용. 해당 폴터에 폰트파일 있어야 한다.
         subtitleLayout.setStyle(new CaptionStyleCompat(
-            Color.WHITE, // 텍스트 색상
-            Color.BLACK, // 배경 색상
-            Color.TRANSPARENT, // 윈도우 색상
-            CaptionStyleCompat.EDGE_TYPE_OUTLINE, // 엣지 타입
-            Color.TRANSPARENT, // 엣지 색상
-            Typeface.createFromAsset(context.getAssets(), "fonts/MPLUS1-Regular.ttf")
-    ));// 커스텀 폰트
+                Color.WHITE, // 텍스트 색상
+                Color.BLACK, // 배경 색상
+                Color.TRANSPARENT, // 윈도우 색상
+                CaptionStyleCompat.EDGE_TYPE_OUTLINE, // 엣지 타입
+                Color.TRANSPARENT, // 엣지 색상
+                Typeface.createFromAsset(context.getAssets(), "fonts/MPLUS1-Regular.ttf")
+        ));// 커스텀 폰트
 
         if (style.getFontSize() > 0) {
-            subtitleLayout.setFixedTextSize(TypedValue.COMPLEX_UNIT_SP, style.getFontSize());
+//            subtitleLayout.setFixedTextSize(TypedValue.COMPLEX_UNIT_SP, style.getFontSize()*subtitleLayout.getUser);
+
+//            subtitleLayout.setFractionalTextSize(style.getFontSize());
+            subtitleLayout.setFractionalTextSize(0.0533F * this.getUserCaptionFontScale());
+
         }
         subtitleLayout.setPadding(style.getPaddingLeft(), style.getPaddingTop(), style.getPaddingRight(), style.getPaddingBottom());
         if (style.getOpacity() != 0) {
@@ -140,6 +149,14 @@ public final class ExoPlayerView extends FrameLayout implements AdViewProvider {
 
     }
 
+    private float getUserCaptionFontScale() {
+        if (Util.SDK_INT >= 19 && !this.isInEditMode()) {
+            CaptioningManager captioningManager = (CaptioningManager)this.getContext().getSystemService("captioning");
+            return captioningManager != null && captioningManager.isEnabled() ? captioningManager.getFontScale() : 1.0F;
+        } else {
+            return 1.0F;
+        }
+    }
     public void setShutterColor(Integer color) {
         shutterView.setBackgroundColor(color);
     }

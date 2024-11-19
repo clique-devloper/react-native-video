@@ -314,6 +314,10 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
       return getReactTag(nativeRef);
     },[]);
 
+    const restorePictureInPicture = useCallback(() => {
+      return VideoManager.restorePictureInPicture(getReactTag(nativeRef));
+    },[])
+
     const onVideoLoadStart = useCallback(
       (e: NativeSyntheticEvent<OnLoadStartData>) => {
         hasPoster && setShowPoster(true);
@@ -535,6 +539,7 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
         startPictureInPicture,
         stopPictureInPicture,
         getTag,
+        restorePictureInPicture
       }),
       [
         seek,
@@ -549,6 +554,7 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
         startPictureInPicture,
         stopPictureInPicture,
         getTag,
+        restorePictureInPicture
       ],
     );
 

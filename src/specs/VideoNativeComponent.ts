@@ -394,6 +394,7 @@ export interface VideoManagerType {
   startPictureInPicture: (reactTag: number) => Promise<number>;
   stopPictureInPicture: (reactTag: number) => Promise<number>;
   getTag: (reactTag: number) => Promise<number>;
+  restorePictureInPicture: (reactTag: number) => Promise<number>;
 }
 
 export interface VideoDecoderPropertiesType {

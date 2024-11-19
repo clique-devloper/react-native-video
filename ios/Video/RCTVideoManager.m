@@ -100,4 +100,8 @@ RCT_EXTERN_METHOD(startPictureInPicture : (nonnull NSNumber*)reactTag resolver
 RCT_EXTERN_METHOD(stopPictureInPicture : (nonnull NSNumber*)reactTag resolver
 : (RCTPromiseResolveBlock)resolve rejecter
 : (RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(restorePictureInPicture : (nonnull NSNumber*)reactTag resolver
+: (RCTPromiseResolveBlock)resolve rejecter
+: (RCTPromiseRejectBlock)reject)
 @end

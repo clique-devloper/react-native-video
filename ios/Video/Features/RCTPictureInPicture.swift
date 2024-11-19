@@ -67,6 +67,17 @@ import React
             _pipController = nil
         }
 
+        func restorePictureInPicture(){
+            print("RCTPIP::restorePictureInPicture")
+
+            guard let _pipController else { return }
+
+            DispatchQueue.main.async {
+                _pipController.stopPictureInPicture()
+            }
+        }
+
+
         func setPictureInPicture(_ isActive: Bool) {
             print("RCTPIP::setPictureInPicture")
 

@@ -109,6 +109,14 @@ class RCTVideoManager: RCTViewManager {
         })
     }
 
+    @objc(restorePictureInPicture:resolver:rejecter:)
+    func restorePictureInPicture(reactTag: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        print("react-native-video::리스토어 PIP")
+        performOnVideoView(withReactTag: reactTag, callback: { videoView in
+            videoView?.restorePictureInPicture();
+        })
+    }
+    
     override class func requiresMainQueueSetup() -> Bool {
         return true
     }

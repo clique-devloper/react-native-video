@@ -672,13 +672,6 @@ class RCTVideo: UIView, RCTVideoPlayerViewControllerDelegate, RCTPlayerObserverH
     }
 
     @objc
-    func restorePictureInPicture() {
-#if os(iOS)
-        _pip?.restorePictureInPicture()
-#endif
-    }
-    
-    @objc
     func setPictureInPicture(_ pictureInPicture: Bool) {
         print("setPictureInPicture 안함");
         #if os(iOS)

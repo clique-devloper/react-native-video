@@ -369,6 +369,11 @@ public class ReactExoplayerView extends FrameLayout implements
         themedReactContext.addLifecycleEventListener(this);
         audioBecomingNoisyReceiver = new AudioBecomingNoisyReceiver(themedReactContext);
         audioFocusChangeListener = new OnAudioFocusChangedListener(this, themedReactContext);
+        
+        // Register this instance for codec error recovery
+        synchronized (allInstances) {
+            allInstances.add(new WeakReference<>(this));
+        }
     }
 
     private boolean isPlayingAd() {

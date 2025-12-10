@@ -34,6 +34,7 @@ import com.brentvatne.common.api.ResizeMode;
 import com.brentvatne.common.api.SubtitleStyle;
 import com.google.common.collect.ImmutableList;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class ExoPlayerView extends FrameLayout implements AdViewProvider {
@@ -51,6 +52,10 @@ public final class ExoPlayerView extends FrameLayout implements AdViewProvider {
     private boolean useTextureView = true;
     private boolean useSecureView = false;
     private boolean hideShutterView = false;
+    
+    // 🔧 PIP 모드 대응: paddingBottom 값을 저장하여 onCues에서 자막 위치 계산에 사용
+    private int subtitlePaddingBottom = 0;
+    private int subtitleViewHeight = 0; // 자막 뷰 높이 (비율 계산용)
 
     public ExoPlayerView(Context context) {
         this(context, null);
@@ -83,7 +88,13 @@ public final class ExoPlayerView extends FrameLayout implements AdViewProvider {
         shutterView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.black));
 
         subtitleLayout = new SubtitleView(context);
-        subtitleLayout.setLayoutParams(layoutParams);
+        // 🔧 PIP 모드 대응: SubtitleView를 하단에 고정하기 위해 FrameLayout.LayoutParams 사용
+        FrameLayout.LayoutParams subtitleLayoutParams = new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT  // 높이를 WRAP_CONTENT로 변경하여 Gravity.BOTTOM 적용
+        );
+        subtitleLayoutParams.gravity = Gravity.BOTTOM; // 자막을 하단에 고정
+        subtitleLayout.setLayoutParams(subtitleLayoutParams);
         subtitleLayout.setUserDefaultStyle();
         subtitleLayout.setUserDefaultTextSize();
 
@@ -95,7 +106,7 @@ public final class ExoPlayerView extends FrameLayout implements AdViewProvider {
         layout.addView(adOverlayFrameLayout, 2, layoutParams);
 
         addViewInLayout(layout, 0, aspectRatioParams);
-        addViewInLayout(subtitleLayout, 1, layoutParams);
+        addViewInLayout(subtitleLayout, 1, subtitleLayoutParams);
     }
 
     private void clearVideoView() {
@@ -135,14 +146,25 @@ public final class ExoPlayerView extends FrameLayout implements AdViewProvider {
 
 
         if (style.getFontSize() > 0) {
+            // ✅ PIP 모드 대응: setFractionalTextSize 대신 setFixedTextSize 사용
+            // setFractionalTextSize는 부모 View 높이 기준이라 PIP 모드에서 레이아웃 변경 시 문제 발생
+            // setFixedTextSize는 절대 크기(SP)를 사용하여 화면 크기/부모 View와 무관하게 작동
 
-//            subtitleLayout.setFixedTextSize(TypedValue.COMPLEX_UNIT_SP, style.getFontSize()*subtitleLayout.getUser);
+            // fontSize 500 → 25sp, 1000 → 50sp 정도로 변환
+            float spSize = style.getFontSize() * 0.05F;
+            subtitleLayout.setFixedTextSize(TypedValue.COMPLEX_UNIT_SP, spSize);
 
-//            subtitleLayout.setFractionalTextSize(style.getFontSize());
-            subtitleLayout.setFractionalTextSize(0.0533F * style.getFontSize() * 0.001F * this.getUserCaptionFontScale());
+            Log.d("ExoPlayerView", "자막 크기 설정: fontSize=" + style.getFontSize() + 
+                  ", spSize=" + spSize + "sp");
 
+            // 기존 setFractionalTextSize 방식 (PIP 모드에서 작동 안함)
+            // subtitleLayout.setFractionalTextSize(0.0533F * style.getFontSize() * 0.001F * this.getUserCaptionFontScale());
         }
         subtitleLayout.setPadding(style.getPaddingLeft(), style.getPaddingTop(), style.getPaddingRight(), style.getPaddingBottom());
+        
+        // 🔧 paddingBottom 저장 (onCues에서 자막 위치 계산에 사용)
+        this.subtitlePaddingBottom = style.getPaddingBottom();
+        Log.d("ExoPlayerView", "자막 paddingBottom 설정: " + this.subtitlePaddingBottom + "px");
         if (style.getOpacity() != 0) {
             subtitleLayout.setAlpha(style.getOpacity());
             subtitleLayout.setVisibility(View.VISIBLE);
@@ -295,7 +317,21 @@ public final class ExoPlayerView extends FrameLayout implements AdViewProvider {
 
         @Override
         public void onCues(@NonNull List<Cue> cues) {
-            subtitleLayout.setCues(cues);
+            // 🔧 PIP 모드 대응: Cue의 line 위치가 미지정이면 하단(0.95)으로 강제 설정
+            List<Cue> adjustedCues = new ArrayList<>();
+            for (Cue cue : cues) {
+                if (cue.line == Cue.DIMEN_UNSET) {
+                    // 위치가 미지정인 경우 하단 95% 위치로 설정
+                    Cue.Builder builder = cue.buildUpon();
+                    builder.setLine(0.95f, Cue.LINE_TYPE_FRACTION);
+                    builder.setLineAnchor(Cue.ANCHOR_TYPE_END); // 자막 하단이 0.95 위치에 맞춤
+                    adjustedCues.add(builder.build());
+                    Log.d("ExoPlayerView", "자막 위치 조정: line=0.95, anchor=END");
+                } else {
+                    adjustedCues.add(cue);
+                }
+            }
+            subtitleLayout.setCues(adjustedCues);
         }
 
         @Override

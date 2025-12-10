@@ -27,8 +27,11 @@ import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 import javax.annotation.Nullable;
 
@@ -36,6 +39,10 @@ public class ReactExoplayerViewManager extends ViewGroupManager<ReactExoplayerVi
 
     private static final String TAG = "ExoViewManager";
     private static final String REACT_CLASS = "RCTVideo";
+    
+    // Track all active player views for global release
+    private static final Set<ReactExoplayerView> activePlayerViews = 
+        Collections.newSetFromMap(new WeakHashMap<ReactExoplayerView, Boolean>());
     private static final String PROP_SRC = "src";
     private static final String PROP_AD_TAG_URL = "adTagUrl";
     private static final String PROP_DRM = "drm";
@@ -98,12 +105,48 @@ public class ReactExoplayerViewManager extends ViewGroupManager<ReactExoplayerVi
     @NonNull
     @Override
     protected ReactExoplayerView createViewInstance(@NonNull ThemedReactContext themedReactContext) {
-        return new ReactExoplayerView(themedReactContext, config);
+        ReactExoplayerView view = new ReactExoplayerView(themedReactContext, config);
+        synchronized (activePlayerViews) {
+            activePlayerViews.add(view);
+        }
+        return view;
     }
 
     @Override
     public void onDropViewInstance(ReactExoplayerView view) {
+        synchronized (activePlayerViews) {
+            activePlayerViews.remove(view);
+        }
         view.cleanUpResources();
+    }
+    
+    /**
+     * Release all active ExoPlayer instances.
+     * This forces MediaCodec (especially secure decoders) to be released.
+     */
+    public static void releaseAllPlayers() {
+        synchronized (activePlayerViews) {
+            Log.d(TAG, "releaseAllPlayers: Releasing " + activePlayerViews.size() + " player(s)");
+            for (ReactExoplayerView view : activePlayerViews) {
+                try {
+                    view.cleanUpResources();
+                } catch (Exception e) {
+                    Log.e(TAG, "Error releasing player: " + e.getMessage());
+                }
+            }
+            activePlayerViews.clear();
+        }
+        // Force garbage collection to release MediaCodec resources
+        System.gc();
+    }
+    
+    /**
+     * Get count of active players
+     */
+    public static int getActivePlayerCount() {
+        synchronized (activePlayerViews) {
+            return activePlayerViews.size();
+        }
     }
 
     @Override

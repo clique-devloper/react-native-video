@@ -137,6 +137,7 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.lang.Math;
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -166,9 +167,63 @@ public class ReactExoplayerView extends FrameLayout implements
     private static final CookieManager DEFAULT_COOKIE_MANAGER;
     private static final int SHOW_PROGRESS = 1;
 
+    // Static list to track all player instances for codec error recovery
+    private static final List<WeakReference<ReactExoplayerView>> allInstances = new ArrayList<>();
+
     static {
         DEFAULT_COOKIE_MANAGER = new CookieManager();
         DEFAULT_COOKIE_MANAGER.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
+    }
+
+    /**
+     * Release all active ExoPlayer instances.
+     * Called from VideoManagerModule when codec error recovery is needed.
+     * @return number of players released
+     */
+    public static synchronized int releaseAllPlayers() {
+        int releasedCount = 0;
+        List<WeakReference<ReactExoplayerView>> toRemove = new ArrayList<>();
+        
+        for (WeakReference<ReactExoplayerView> ref : allInstances) {
+            ReactExoplayerView view = ref.get();
+            if (view != null && view.player != null) {
+                try {
+                    view.player.release();
+                    view.player = null;
+                    releasedCount++;
+                    DebugLog.d(TAG, "Released player instance");
+                } catch (Exception e) {
+                    DebugLog.e(TAG, "Error releasing player: " + e.getMessage());
+                }
+            } else {
+                toRemove.add(ref);
+            }
+        }
+        
+        allInstances.removeAll(toRemove);
+        DebugLog.d(TAG, "releaseAllPlayers: released " + releasedCount + " players");
+        return releasedCount;
+    }
+
+    /**
+     * Get count of active player instances.
+     * @return number of active players
+     */
+    public static synchronized int getActivePlayerCount() {
+        int count = 0;
+        List<WeakReference<ReactExoplayerView>> toRemove = new ArrayList<>();
+        
+        for (WeakReference<ReactExoplayerView> ref : allInstances) {
+            ReactExoplayerView view = ref.get();
+            if (view != null && view.player != null) {
+                count++;
+            } else {
+                toRemove.add(ref);
+            }
+        }
+        
+        allInstances.removeAll(toRemove);
+        return count;
     }
 
     private final VideoEventEmitter eventEmitter;

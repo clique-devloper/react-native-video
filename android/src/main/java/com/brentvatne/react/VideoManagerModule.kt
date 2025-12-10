@@ -1,7 +1,9 @@
 package com.brentvatne.react
 
+import android.util.Log
 import com.brentvatne.common.toolbox.ReactBridgeUtils
 import com.brentvatne.exoplayer.ReactExoplayerView
+import com.brentvatne.exoplayer.ReactExoplayerViewManager
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -66,6 +68,42 @@ class VideoManagerModule(reactContext: ReactApplicationContext?) : ReactContextB
     fun getCurrentPosition(reactTag: Int, promise: Promise) {
         performOnPlayerView(reactTag) {
             it?.getCurrentPosition(promise)
+        }
+    }
+
+    /**
+     * Release all active ExoPlayer instances.
+     * This is useful for freeing secure MediaCodec decoders (e.g., c2.qti.avc.decoder.secure)
+     * which can only have one instance at a time.
+     */
+    @ReactMethod
+    fun releaseAllPlayers(promise: Promise) {
+        Log.d(REACT_CLASS, "releaseAllPlayers called")
+        UiThreadUtil.runOnUiThread {
+            try {
+                val count = ReactExoplayerViewManager.getActivePlayerCount()
+                Log.d(REACT_CLASS, "Releasing $count active players")
+                ReactExoplayerViewManager.releaseAllPlayers()
+                promise.resolve(count)
+            } catch (e: Exception) {
+                Log.e(REACT_CLASS, "Error releasing players: ${e.message}")
+                promise.reject("RELEASE_ERROR", e.message, e)
+            }
+        }
+    }
+
+    /**
+     * Get the count of active players
+     */
+    @ReactMethod
+    fun getActivePlayerCount(promise: Promise) {
+        UiThreadUtil.runOnUiThread {
+            try {
+                val count = ReactExoplayerViewManager.getActivePlayerCount()
+                promise.resolve(count)
+            } catch (e: Exception) {
+                promise.reject("COUNT_ERROR", e.message, e)
+            }
         }
     }
 
